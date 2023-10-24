@@ -7,11 +7,8 @@ public class OrdBehandler {
     OrdBehandler(URLReader urlReader) {
         this.urlReader = urlReader;
         List<String> ord = new ArrayList<>(Arrays.asList(urlReader.getUt().split(" ")));
-
         ord.removeIf(word -> word.equals("") || word.equals(","));
-
         HashMap<String, Integer> kombinasjoner = new HashMap<>();
-
         // Gå gjennom ordene og generer og tell ordkombinasjoner
         for (int i = 0; i < ord.size() - 2; i++) {
             String kombinasjon = ord.get(i) + "+" + ord.get(i+1) + "+" + ord.get(i+2);
@@ -33,7 +30,7 @@ public class OrdBehandler {
     String genererTekst(HashMap<String, Integer> kombinasjoner) {
         StringBuilder generertTekst = new StringBuilder();
         generertTekst.append(startKombinasjon.split("\\+")[0] + " " + startKombinasjon.split("\\+")[1] + " ");
-        for (int antallOrd = 0; antallOrd < kombinasjoner.size(); antallOrd++) {
+        while (kombinasjoner.size() != 0) {
             ArrayList<String> muligeNesteOrd = new ArrayList<>();
             for (String kombinasjon : kombinasjoner.keySet()) {
                 String[] kombiData = kombinasjon.split("\\+");
@@ -43,19 +40,23 @@ public class OrdBehandler {
                     muligeNesteOrd.add(deler[2]);
                 }
             }
-           // System.out.println("ARR: " + muligeNesteOrd);
+            //System.out.println("ARR: " + muligeNesteOrd);
             if (!muligeNesteOrd.isEmpty()) {
                 // Velg et ord basert på sannsynlighet.
                 String nesteOrd = velgOrdBasertPåSannsynlighet(muligeNesteOrd, kombinasjoner);
                 generertTekst.append(nesteOrd).append(" ");
-                //System.out.println(startKombinasjon.split("\\+")[0] + "+" + startKombinasjon.split("\\+")[1] + "+" + nesteOrd);
                 kombinasjoner.remove(startKombinasjon.split("\\+")[0] + "+" + startKombinasjon.split("\\+")[1] + "+" + nesteOrd);
                 startKombinasjon = startKombinasjon.split("\\+")[1] + "+" + nesteOrd;
-                //System.out.println(kombinasjoner.size());
-
             } else {
-                // Ingen flere mulige ord, avslutt generering.
-                break;
+                // Ingen flere mulige ord, finner ny random startkombinsjon generering.
+
+                Map.Entry<String, Integer> først = kombinasjoner.entrySet().iterator().next();
+                for (int i = 0; i < (int)(Math.random()*kombinasjoner.size()-1); i++) {
+                    først = kombinasjoner.entrySet().iterator().next();
+                }
+                String førsteNøkkel = først.getKey();
+                String[] nøkkelDeler = førsteNøkkel.split("\\+");
+                startKombinasjon = nøkkelDeler[0] + "+" + nøkkelDeler[1];
             }
         }
         return generertTekst.toString();
