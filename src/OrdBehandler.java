@@ -2,7 +2,7 @@ import java.util.*;
 
 public class OrdBehandler {
     protected URLReader urlReader;
-    String startKombinasjon = "vil+du"; // Velg en startkombinasjon.
+    String startKombinasjon = "til+deg"; // Velg en startkombinasjon.
     String ut;
     OrdBehandler(URLReader urlReader) {
         this.urlReader = urlReader;
@@ -17,7 +17,7 @@ public class OrdBehandler {
             String kombinasjon = ord.get(i) + "+" + ord.get(i+1) + "+" + ord.get(i+2);
 
             // Ignorer spesialtegn og konverter til små bokstaver (avhengig av kravene)
-            kombinasjon = kombinasjon.replaceAll("[.,;?!]", "").toLowerCase();
+            kombinasjon = kombinasjon.replaceAll("[.,;?!«»]", "").toLowerCase();
             //kombinasjon = kombinasjon.toLowerCase(); //Bare lowercase
 
             // Legg til eller oppdater telleren for ordkombinasjonen
@@ -33,29 +33,26 @@ public class OrdBehandler {
     String genererTekst(HashMap<String, Integer> kombinasjoner) {
         StringBuilder generertTekst = new StringBuilder();
         generertTekst.append(startKombinasjon.split("\\+")[0] + " " + startKombinasjon.split("\\+")[1] + " ");
-
-        for (int antallOrd = 0; antallOrd < 20; antallOrd++) {
+        for (int antallOrd = 0; antallOrd < kombinasjoner.size(); antallOrd++) {
             ArrayList<String> muligeNesteOrd = new ArrayList<>();
-            System.out.println("startKombinasjon:" + startKombinasjon);
             for (String kombinasjon : kombinasjoner.keySet()) {
-                if (kombinasjon.startsWith(startKombinasjon)) {
+                String[] kombiData = kombinasjon.split("\\+");
+                String[] startData = startKombinasjon.split("\\+");
+                if (kombiData[0].equals(startData[0]) && kombiData[1].equals(startData[1])) {
                     String[] deler = kombinasjon.split("\\+");
-                    if (deler.length >= 3) {
-                        muligeNesteOrd.add(deler[2]);
-                    }
+                    muligeNesteOrd.add(deler[2]);
                 }
             }
-            System.out.println("ARR: " + muligeNesteOrd);
+           // System.out.println("ARR: " + muligeNesteOrd);
             if (!muligeNesteOrd.isEmpty()) {
                 // Velg et ord basert på sannsynlighet.
                 String nesteOrd = velgOrdBasertPåSannsynlighet(muligeNesteOrd, kombinasjoner);
                 generertTekst.append(nesteOrd).append(" ");
-                String[] deler = startKombinasjon.split("\\+");
-                if (deler.length >= 3) {
-                    startKombinasjon = startKombinasjon.split("\\+")[1] + "+" + startKombinasjon.split("\\+")[2] + "+" + nesteOrd;
-                } else {
-                    startKombinasjon = startKombinasjon + "+"+ nesteOrd;
-                }
+                //System.out.println(startKombinasjon.split("\\+")[0] + "+" + startKombinasjon.split("\\+")[1] + "+" + nesteOrd);
+                kombinasjoner.remove(startKombinasjon.split("\\+")[0] + "+" + startKombinasjon.split("\\+")[1] + "+" + nesteOrd);
+                startKombinasjon = startKombinasjon.split("\\+")[1] + "+" + nesteOrd;
+                //System.out.println(kombinasjoner.size());
+
             } else {
                 // Ingen flere mulige ord, avslutt generering.
                 break;
