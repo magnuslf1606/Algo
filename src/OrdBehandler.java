@@ -1,10 +1,11 @@
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class OrdBehandler {
     protected URLReader urlReader;
     String startKombinasjon = "til+deg"; // Velg en startkombinasjon.
-    String ut;
-    OrdBehandler(URLReader urlReader) {
+    OrdBehandler(URLReader urlReader) throws Exception {
         this.urlReader = urlReader;
         List<String> ord = new ArrayList<>(Arrays.asList(urlReader.getUt().split(" ")));
         ord.removeIf(word -> word.equals("") || word.equals(","));
@@ -20,12 +21,7 @@ public class OrdBehandler {
             // Legg til eller oppdater telleren for ordkombinasjonen
             kombinasjoner.put(kombinasjon, kombinasjoner.getOrDefault(kombinasjon, 0) + 1);
         }
-        // Skriv ut resultatet
-        for (String kombinasjon : kombinasjoner.keySet()) {
-            int antall = kombinasjoner.get(kombinasjon);
-            //System.out.println(kombinasjon + ": " + antall);
-        }
-        System.out.println("UT: " +genererTekst(kombinasjoner));
+        printTilTxt(genererTekst(kombinasjoner));
     }
     String genererTekst(HashMap<String, Integer> kombinasjoner) {
         StringBuilder generertTekst = new StringBuilder();
@@ -49,7 +45,6 @@ public class OrdBehandler {
                 startKombinasjon = startKombinasjon.split("\\+")[1] + "+" + nesteOrd;
             } else {
                 // Ingen flere mulige ord, finner ny random startkombinsjon generering.
-
                 Map.Entry<String, Integer> først = kombinasjoner.entrySet().iterator().next();
                 for (int i = 0; i < (int)(Math.random()*kombinasjoner.size()-1); i++) {
                     først = kombinasjoner.entrySet().iterator().next();
@@ -58,6 +53,7 @@ public class OrdBehandler {
                 String[] nøkkelDeler = førsteNøkkel.split("\\+");
                 startKombinasjon = nøkkelDeler[0] + "+" + nøkkelDeler[1];
             }
+            System.out.println(kombinasjoner.size());
         }
         return generertTekst.toString();
     }
@@ -89,5 +85,10 @@ public class OrdBehandler {
         }
         // Dette bør aldri nås, men om det gjør det, returnerer vi et vilkårlig ord.
         return muligeNesteOrd.get(random.nextInt(muligeNesteOrd.size()));
+    }
+    void printTilTxt(String s) throws Exception {
+        PrintWriter pw = new PrintWriter("src/txt.txt");
+        pw.println(s);
+        pw.close();
     }
 }
