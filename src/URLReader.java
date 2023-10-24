@@ -30,7 +30,6 @@ public class URLReader {
             in.close();
             ut = utRaw.toString();
             ut = ut.replaceAll("<[^>]*>", "");
-
         }
         catch (MalformedURLException e) {
             System.out.println("URL feil: " + e);
